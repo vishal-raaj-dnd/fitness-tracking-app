@@ -18,6 +18,7 @@ import type {
   WorkoutDay,
   WorkoutHistoryEntry,
 } from '../types';
+import type { ApprovedWorkoutPlan, OnboardingDataModel } from '../types/onboarding';
 import { SEED_COACH_ROSTER, SEED_USERS, type CoachRosterMember } from '../data/users/seedUsers';
 import {
   SEED_FOOD_DATABASE,
@@ -188,6 +189,10 @@ interface UpriseContextValue {
   switchRole: (role: UserRole) => void;
   updateProfile: (patch: Partial<UserProfile>) => void;
   completeOnboarding: (profileData: Partial<UserProfile>) => void;
+  completeOnboardingWizard: (
+    data: OnboardingDataModel,
+    selectedPlan: ApprovedWorkoutPlan | null
+  ) => void;
   toggleMealCompleted: (mealId: string) => void;
   selectMealAlternative: (mealId: string, alternativeId: string | undefined) => void;
   addCustomFood: (food: Omit<FoodItem, 'id'>) => void;
@@ -369,6 +374,191 @@ export const UpriseProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       ),
       currentUserId: 'member-arjun',
     }));
+  };
+
+  const completeOnboardingWizard = (
+    data: OnboardingDataModel,
+    selectedPlan: ApprovedWorkoutPlan | null
+  ) => {
+    const daysMap: Record<3 | 4 | 5 | 6, string[]> = {
+      3: ['Mon', 'Wed', 'Fri'],
+      4: ['Mon', 'Tue', 'Thu', 'Fri'],
+      5: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+      6: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+    };
+    const timeMap: Record<string, string> = {
+      Morning: '07:30',
+      Afternoon: '13:30',
+      Evening: '18:30',
+    };
+
+    const heightCm = Number(data.physical_information.height_cm) || 170;
+    const currentWeightKg = Number(data.physical_information.current_weight_kg) || 70;
+    const targetWeightKg = Number(data.physical_information.target_weight_kg) || 65;
+
+    const workoutDays =
+      data.fitness_information.available_workout_days
+        ? daysMap[data.fitness_information.available_workout_days]
+        : ['Mon', 'Wed', 'Fri'];
+    const workoutLocation =
+      data.fitness_information.workout_location === 'home'
+        ? ('home_dumbbells' as const)
+        : ('commercial_gym' as const);
+    const preferredTime =
+      timeMap[data.fitness_information.preferred_workout_time] ?? '07:30';
+
+    const conditionParts = [
+      data.health_information.diabetes_status === 'type_1'
+        ? 'Type 1 Diabetes'
+        : data.health_information.diabetes_status === 'type_2'
+          ? 'Type 2 Diabetes'
+          : null,
+      data.health_information.pcos_status === 'yes' ? 'PCOS' : null,
+      data.health_information.other_conditions.trim() || null,
+    ].filter(Boolean);
+
+    const medicalConditionsSummary =
+      conditionParts.length > 0 ? conditionParts.join(' · ') : 'None reported';
+
+    const assignmentStatus = selectedPlan
+      ? selectedPlan.requiresCoachApproval
+        ? ('pending_coach_approval' as const)
+        : ('selected_approved' as const)
+      : ('pending_coach_assignment' as const);
+
+    const todayStr = new Date().toISOString().slice(0, 10);
+
+    setState((prev) => {
+      const updatedUsers = prev.users.map((u) => {
+        if (u.id !== 'member-arjun') return u;
+        return {
+          ...u,
+          fullName: data.personal_information.full_name.trim(),
+          email: data.personal_information.email.trim(),
+          phone: data.personal_information.phone.trim(),
+          dateOfBirth: data.personal_information.date_of_birth,
+          gender: data.personal_information.gender || undefined,
+          avatarUrl: data.personal_information.profile_photo,
+          programmeDay: 1,
+          heightCm,
+          startWeightKg: currentWeightKg,
+          currentWeightKg,
+          targetWeightKg,
+          fitnessGoal: data.fitness_information.fitness_goal || 'fat_loss',
+          experienceLevel: data.fitness_information.experience_level || 'beginner',
+          workoutLocation,
+          availableWorkoutDays: workoutDays,
+          preferredWorkoutTime: preferredTime,
+          preferredMissionTypes:
+            data.fitness_information.preferred_mission_types.length > 0
+              ? data.fitness_information.preferred_mission_types
+              : undefined,
+          dietaryPreference: data.nutrition_information.dietary_preference || 'non_vegetarian',
+          mealFrequency: data.nutrition_information.meal_frequency || 4,
+          foodPreferences: data.nutrition_information.food_preferences.join(', '),
+          medicalConditions: medicalConditionsSummary,
+          diabetesStatus: data.health_information.diabetes_status,
+          pcosStatus: data.health_information.pcos_status,
+          medications: data.health_information.medications.trim() || undefined,
+          exerciseRestrictions: data.health_information.exercise_restrictions,
+          allergies: data.health_information.allergies.trim() || 'None',
+          dietaryRestrictions:
+            data.health_information.dietary_restrictions.trim() || undefined,
+          safetyNotes:
+            data.health_information.custom_restriction_note.trim() ||
+            (data.health_information.exercise_restrictions.length > 0
+              ? 'Coach safety adjustments queued based on movement screening.'
+              : 'No movement restrictions flagged.'),
+          healthConsentAccepted: data.health_information.consent_status,
+          healthConsentTimestamp: new Date().toISOString(),
+          onboardingComplete: true,
+          workoutAssignment: {
+            selectedPlanId: selectedPlan?.id ?? null,
+            selectedPlanName: selectedPlan?.planName ?? null,
+            selectedSplit: selectedPlan?.splitLabel ?? null,
+            assignmentStatus,
+          },
+        };
+      });
+
+      const updatedMember = updatedUsers.find((u) => u.id === 'member-arjun') ?? prev.users[0];
+      const nextWeeklySplit = selectedPlan ? selectedPlan.weeklySchedule : prev.weeklySplit;
+      const nextTodayWorkout = nextWeeklySplit[0];
+      const tailoredMission = selectDailyMission(prev.missionLibrary, {
+        profile: updatedMember,
+        isRestDay: nextTodayWorkout.isRestDay,
+        recentTrainingLoad: 'moderate',
+      });
+
+      const updatedRoster = prev.coachRoster.map((m) =>
+        m.id === 'member-arjun'
+          ? {
+              ...m,
+              fullName: updatedMember.fullName,
+              programmeDay: 1,
+              currentWeightKg,
+              startWeightKg: currentWeightKg,
+              targetWeightKg,
+              workoutPlanName:
+                selectedPlan?.planName ?? 'Awaiting Coach Plan Assignment',
+              currentStreak: 0,
+              streakStatus: 'At risk' as const,
+              safetyNote: updatedMember.safetyNotes,
+            }
+          : m
+      );
+
+      const freshHeatmap = prev.heatmap.map((d) => ({
+        ...d,
+        status: 'upcoming' as const,
+        workoutDone: false,
+        mealsDoneCount: 0,
+        missionDone: false,
+      }));
+
+      return {
+        ...prev,
+        currentUserId: 'member-arjun',
+        users: updatedUsers,
+        meals: prev.meals.map((m) => ({
+          ...m,
+          completed: false,
+          loggedAt: undefined,
+        })),
+        customFoods: [],
+        weeklySplit: nextWeeklySplit,
+        todayWorkoutId: nextTodayWorkout.id,
+        todayWorkoutCompleted: false,
+        weightHistory: [
+          {
+            id: `w-onboard-${Date.now()}`,
+            date: todayStr,
+            weightKg: currentWeightKg,
+            note: 'Day 1 baseline',
+          },
+        ],
+        heatmap: freshHeatmap,
+        streakState: {
+          ...prev.streakState,
+          currentStreak: 0,
+          status: 'At risk',
+          restDayCheckedInToday: false,
+        },
+        activeMissionState: {
+          missionId: tailoredMission.id,
+          status: 'unrevealed',
+          swappedOnce: false,
+        },
+        coachRoster: updatedRoster,
+        todayQualifiedRecorded: false,
+      };
+    });
+
+    try {
+      localStorage.setItem('uprise_entry_dismissed_v1', '1');
+    } catch {
+      // ignore
+    }
   };
 
   const toggleMealCompleted = (mealId: string) => {
@@ -667,6 +857,7 @@ export const UpriseProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         switchRole,
         updateProfile,
         completeOnboarding,
+        completeOnboardingWizard,
         toggleMealCompleted,
         selectMealAlternative,
         addCustomFood,

@@ -23,12 +23,21 @@ export interface NotificationPrefs {
   missionDrops: boolean;
 }
 
+export interface WorkoutAssignmentSummary {
+  selectedPlanId: string | null;
+  selectedPlanName: string | null;
+  selectedSplit: string | null;
+  assignmentStatus: 'unassigned' | 'selected_approved' | 'pending_coach_approval' | 'pending_coach_assignment';
+}
+
 export interface UserProfile {
   id: string;
   role: UserRole;
   fullName: string;
   email: string;
   phone: string;
+  dateOfBirth?: string;
+  gender?: string;
   avatarUrl: string;
   assignedCoachId?: string;
   programmeName: string;
@@ -43,18 +52,24 @@ export interface UserProfile {
   workoutLocation: WorkoutLocation;
   availableWorkoutDays: string[];
   preferredWorkoutTime: string; // HH:mm 24h e.g. "07:30"
+  preferredMissionTypes?: MissionCategory[];
   dietaryPreference: DietaryPreference;
   mealFrequency: 3 | 4 | 5;
   foodPreferences: string;
   medicalConditions: string;
+  diabetesStatus?: 'not_applicable' | 'type_1' | 'type_2';
+  pcosStatus?: 'not_applicable' | 'yes' | 'no';
+  medications?: string;
   exerciseRestrictions: SafetyRestriction[];
   allergies: string;
+  dietaryRestrictions?: string;
   safetyNotes: string;
   healthConsentAccepted: boolean;
   healthConsentTimestamp?: string;
   timezone: string;
   notifications: NotificationPrefs;
   onboardingComplete: boolean;
+  workoutAssignment?: WorkoutAssignmentSummary;
 }
 
 export type MealSlotType = 'Breakfast' | 'Lunch' | 'Snacks' | 'Dinner';

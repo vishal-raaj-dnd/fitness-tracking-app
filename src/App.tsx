@@ -1,8 +1,16 @@
 import React from 'react';
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+  useNavigate,
+  useSearchParams,
+} from 'react-router-dom';
 import { MotionConfig } from 'motion/react';
 import { UpriseProvider } from './context/UpriseContext';
 import { MemberShell } from './components/layout/MemberShell';
+import { WelcomeScreen } from './components/onboarding/WelcomeScreen';
 import { HomePage } from './pages/Home/HomePage';
 import { MealsPage } from './pages/Meals/MealsPage';
 import { TrainingPage } from './pages/Training/TrainingPage';
@@ -14,70 +22,105 @@ import { LoginPage } from './pages/Auth/LoginPage';
 import { CoachDashboardPage } from './pages/Coach/CoachDashboardPage';
 import { AdminDashboardPage } from './pages/Admin/AdminDashboardPage';
 
+const EntryOrHome: React.FC = () => {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  const isAutostart = searchParams.get('autostart') === '1';
+  let isEntryDismissed = false;
+  try {
+    if (isAutostart) {
+      localStorage.setItem('uprise_entry_dismissed_v1', '1');
+      isEntryDismissed = true;
+    } else {
+      isEntryDismissed = localStorage.getItem('uprise_entry_dismissed_v1') === '1';
+    }
+  } catch {
+    isEntryDismissed = isAutostart;
+  }
+
+  if (!isEntryDismissed) {
+    return (
+      <WelcomeScreen
+        onGetStarted={() => navigate('/onboarding?step=1')}
+        onExistingMember={() => {
+          try {
+            localStorage.setItem('uprise_entry_dismissed_v1', '1');
+          } catch {
+            // ignore
+          }
+          navigate('/login');
+        }}
+      />
+    );
+  }
+
+  return (
+    <MemberShell>
+      <HomePage />
+    </MemberShell>
+  );
+};
+
 export default function App() {
   return (
     <MotionConfig reducedMotion="user">
       <UpriseProvider>
         <BrowserRouter>
-        <Routes>
-          {/* Member Experience Routes */}
-          <Route
-            path="/"
-            element={
-              <MemberShell>
-                <HomePage />
-              </MemberShell>
-            }
-          />
-          <Route
-            path="/meals"
-            element={
-              <MemberShell>
-                <MealsPage />
-              </MemberShell>
-            }
-          />
-          <Route
-            path="/training"
-            element={
-              <MemberShell>
-                <TrainingPage />
-              </MemberShell>
-            }
-          />
-          <Route
-            path="/progress"
-            element={
-              <MemberShell>
-                <ProgressPage />
-              </MemberShell>
-            }
-          />
-          <Route
-            path="/profile"
-            element={
-              <MemberShell>
-                <ProfilePage />
-              </MemberShell>
-            }
-          />
+          <Routes>
+            {/* First-time Welcome Gate or Member Home */}
+            <Route path="/" element={<EntryOrHome />} />
 
-          {/* Distraction-Free Workout Mode */}
-          <Route path="/workout-mode" element={<WorkoutModePage />} />
+            {/* Member Experience Routes */}
+            <Route
+              path="/meals"
+              element={
+                <MemberShell>
+                  <MealsPage />
+                </MemberShell>
+              }
+            />
+            <Route
+              path="/training"
+              element={
+                <MemberShell>
+                  <TrainingPage />
+                </MemberShell>
+              }
+            />
+            <Route
+              path="/progress"
+              element={
+                <MemberShell>
+                  <ProgressPage />
+                </MemberShell>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <MemberShell>
+                  <ProfilePage />
+                </MemberShell>
+              }
+            />
 
-          {/* Onboarding & Auth */}
-          <Route path="/onboarding" element={<OnboardingPage />} />
-          <Route path="/login" element={<LoginPage />} />
+            {/* Distraction-Free Workout Mode */}
+            <Route path="/workout-mode" element={<WorkoutModePage />} />
 
-          {/* Separate Coach & Admin Areas */}
-          <Route path="/coach" element={<CoachDashboardPage />} />
-          <Route path="/admin" element={<AdminDashboardPage />} />
+            {/* Onboarding & Auth */}
+            <Route path="/onboarding" element={<OnboardingPage />} />
+            <Route path="/login" element={<LoginPage />} />
 
-          {/* Fallback */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </BrowserRouter>
-    </UpriseProvider>
+            {/* Separate Coach & Admin Areas */}
+            <Route path="/coach" element={<CoachDashboardPage />} />
+            <Route path="/admin" element={<AdminDashboardPage />} />
+
+            {/* Fallback */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </BrowserRouter>
+      </UpriseProvider>
     </MotionConfig>
   );
 }

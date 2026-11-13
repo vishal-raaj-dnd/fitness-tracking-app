@@ -95,6 +95,12 @@ export const HomePage: React.FC = () => {
             <SafeImage
               src={currentUser.avatarUrl}
               alt={currentUser.fullName}
+              fallbackInitials={currentUser.fullName
+                .trim()
+                .split(/\s+/)
+                .slice(0, 2)
+                .map((p) => p[0]?.toUpperCase() ?? '')
+                .join('')}
               className="w-full h-full object-cover"
             />
           </Link>
@@ -287,19 +293,37 @@ export const HomePage: React.FC = () => {
             </div>
 
             <h3 className="font-display text-xl font-bold text-white mt-4">
-              {todayWorkout.title}
+              {currentUser.workoutAssignment?.assignmentStatus === 'pending_coach_assignment'
+                ? 'Coach Plan In Preparation'
+                : todayWorkout.title}
             </h3>
-            <div className="flex items-center gap-3 text-xs text-[#8A8F94] mt-2 tabular-nums">
-              <span className="inline-flex items-center gap-1">
-                <Clock className="w-3.5 h-3.5" strokeWidth={1.75} />
-                {todayWorkout.durationMinutes > 0 ? `${todayWorkout.durationMinutes} min` : 'Recovery'}
-              </span>
-              <span aria-hidden="true">·</span>
-              <span>
-                {todayWorkout.isRestDay
-                  ? 'No barbell load today'
-                  : `${todayWorkout.exercises.length} exercises`}
-              </span>
+            <div className="flex flex-wrap items-center gap-3 text-xs text-[#8A8F94] mt-2 tabular-nums">
+              {currentUser.workoutAssignment?.assignmentStatus === 'pending_coach_assignment' ? (
+                <span className="text-[#D4FF1A]">
+                  Pending coach assignment · Safe baseline ready
+                </span>
+              ) : (
+                <>
+                  <span className="inline-flex items-center gap-1">
+                    <Clock className="w-3.5 h-3.5" strokeWidth={1.75} />
+                    {todayWorkout.durationMinutes > 0
+                      ? `${todayWorkout.durationMinutes} min`
+                      : 'Recovery'}
+                  </span>
+                  <span aria-hidden="true">·</span>
+                  <span>
+                    {todayWorkout.isRestDay
+                      ? 'No barbell load today'
+                      : `${todayWorkout.exercises.length} exercises`}
+                  </span>
+                  {currentUser.workoutAssignment?.assignmentStatus === 'pending_coach_approval' && (
+                    <>
+                      <span aria-hidden="true">·</span>
+                      <span className="text-[#D4FF1A]">Awaiting coach sign-off</span>
+                    </>
+                  )}
+                </>
+              )}
             </div>
           </div>
 

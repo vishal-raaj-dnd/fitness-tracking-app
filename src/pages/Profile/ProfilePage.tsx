@@ -60,6 +60,12 @@ export const ProfilePage: React.FC = () => {
             <SafeImage
               src={currentUser.avatarUrl}
               alt={currentUser.fullName}
+              fallbackInitials={currentUser.fullName
+                .trim()
+                .split(/\s+/)
+                .slice(0, 2)
+                .map((p) => p[0]?.toUpperCase() ?? '')
+                .join('')}
               className="w-full h-full object-cover"
             />
           </div>
@@ -75,10 +81,17 @@ export const ProfilePage: React.FC = () => {
 
         <button
           type="button"
-          onClick={() => navigate('/onboarding')}
+          onClick={() => {
+            try {
+              localStorage.removeItem('uprise_onboarding_wizard_v2');
+            } catch {
+              // ignore
+            }
+            navigate('/onboarding');
+          }}
           className="inline-flex items-center justify-center px-4 py-2.5 rounded-xl bg-[#191B1D] border border-[#292C2E] hover:border-[#3E4246] text-xs font-medium text-white transition-colors whitespace-nowrap min-h-[44px]"
         >
-          Re-run 7-Step Onboarding
+          Re-run Onboarding
         </button>
       </header>
 
@@ -117,13 +130,21 @@ export const ProfilePage: React.FC = () => {
                 {currentUser.fitnessGoal.replace('_', ' ')} · {currentUser.experienceLevel}
               </dd>
             </div>
-            <div className="flex justify-between gap-4 py-1.5">
+            <div className="flex justify-between gap-4 py-1.5 border-b border-[#292C2E]">
               <dt className="text-[#8A8F94]">Location · Days</dt>
               <dd className="text-white capitalize">
                 {currentUser.workoutLocation.replace('_', ' ')} ·{' '}
                 {currentUser.availableWorkoutDays.join(', ')}
               </dd>
             </div>
+            {currentUser.workoutAssignment && (
+              <div className="flex justify-between gap-4 py-1.5">
+                <dt className="text-[#8A8F94]">Assigned Split</dt>
+                <dd className="text-[#D4FF1A] font-medium text-right">
+                  {currentUser.workoutAssignment.selectedSplit ?? 'Pending Coach Assignment'}
+                </dd>
+              </div>
+            )}
           </dl>
         </div>
       </section>

@@ -6,6 +6,7 @@ interface SafeImageProps {
   alt: string;
   className?: string;
   fallbackTitle?: string;
+  fallbackInitials?: string;
 }
 
 export const SafeImage: React.FC<SafeImageProps> = ({
@@ -13,10 +14,22 @@ export const SafeImage: React.FC<SafeImageProps> = ({
   alt,
   className = '',
   fallbackTitle,
+  fallbackInitials,
 }) => {
   const [failed, setFailed] = useState(false);
 
   if (failed || !src) {
+    if (fallbackInitials) {
+      return (
+        <div
+          className={`flex items-center justify-center bg-[#191B1D] text-[#D4FF1A] font-display font-bold tracking-tight select-none ${className}`}
+          role="img"
+          aria-label={alt}
+        >
+          {fallbackInitials}
+        </div>
+      );
+    }
     return (
       <div
         className={`flex flex-col items-center justify-center bg-gradient-to-br from-[#191B1D] to-[#111111] border border-[#292C2E] text-[#8A8F94] p-4 ${className}`}

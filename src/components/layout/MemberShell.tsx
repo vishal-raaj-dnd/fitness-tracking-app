@@ -90,6 +90,12 @@ export const MemberShell: React.FC<{ children: React.ReactNode }> = ({ children 
               <SafeImage
                 src={currentUser.avatarUrl}
                 alt={currentUser.fullName}
+                fallbackInitials={currentUser.fullName
+                  .trim()
+                  .split(/\s+/)
+                  .slice(0, 2)
+                  .map((p) => p[0]?.toUpperCase() ?? '')
+                  .join('')}
                 className="w-10 h-10 rounded-full object-cover shrink-0 border border-[#292C2E]"
               />
               <div className="min-w-0 flex-1">

@@ -18,6 +18,11 @@ export const LoginPage: React.FC = () => {
       setError('Enter a valid member email and password.');
       return;
     }
+    try {
+      localStorage.setItem('uprise_entry_dismissed_v1', '1');
+    } catch {
+      // ignore
+    }
     switchRole('member');
     navigate('/');
   };
@@ -82,7 +87,14 @@ export const LoginPage: React.FC = () => {
             <span>Whop SSO integration ready</span>
             <button
               type="button"
-              onClick={() => navigate('/onboarding')}
+              onClick={() => {
+                try {
+                  localStorage.removeItem('uprise_onboarding_wizard_v2');
+                } catch {
+                  // ignore
+                }
+                navigate('/onboarding');
+              }}
               className="text-[#D4FF1A] font-medium hover:underline"
             >
               New Member Onboarding
