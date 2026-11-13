@@ -54,6 +54,7 @@ import {
   swapMissionOnce,
 } from '../services/missions/missionSelector';
 import { calculateDailyNutrition } from '../services/meals/nutritionCalc';
+import { buildInitialHydrationConfig } from '../services/hydration/hydrationTracker';
 
 const STORAGE_KEY = 'uprise_mvp_state_v1';
 
@@ -478,6 +479,12 @@ export const UpriseProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             selectedSplit: selectedPlan?.splitLabel ?? null,
             assignmentStatus,
           },
+          hydrationProfile: data.hydration_information,
+          hydrationConfig: buildInitialHydrationConfig(
+            data.hydration_information,
+            conditionParts.length > 0 ||
+              data.health_information.exercise_restrictions.length > 0
+          ),
         };
       });
 

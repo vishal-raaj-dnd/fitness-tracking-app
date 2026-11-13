@@ -1,11 +1,17 @@
 import React from 'react';
-import { ArrowRight, Edit3, Lock, User } from 'lucide-react';
+import { ArrowRight, Droplets, Edit3, Lock, User } from 'lucide-react';
 import type { OnboardingDataModel } from '../../types/onboarding';
 import { computePhysicalSummary } from '../../services/workouts/planMatcher';
+import {
+  BOTTLE_CAPACITY_LABELS,
+  DRINKING_FREQUENCY_LABELS,
+  HYDRATION_INTAKE_LABELS,
+  REMINDER_PREFERENCE_LABELS,
+} from '../../services/hydration/hydrationTracker';
 
 interface Step07ReviewProps {
   data: OnboardingDataModel;
-  onEditStep: (stepNumber: number) => void;
+  onEditStep: (stepNumber: number, scrollTargetId?: string) => void;
   onContinueToPlans: () => void;
 }
 
@@ -39,6 +45,7 @@ export const Step07Review: React.FC<Step07ReviewProps> = ({
     physical_information: ph,
     fitness_information: f,
     nutrition_information: n,
+    hydration_information: hy,
     health_information: h,
   } = data;
 
@@ -254,6 +261,60 @@ export const Step07Review: React.FC<Step07ReviewProps> = ({
           <div>
             <dt className="text-[#8A8F94]">Food Preferences</dt>
             <dd className="text-white font-medium mt-0.5">{n.food_preferences.join(', ')}</dd>
+          </div>
+        </dl>
+      </section>
+
+      {/* Hydration Profile */}
+      <section className="p-4 sm:p-5 rounded-2xl bg-[#191B1D]/70 border border-[#292C2E] space-y-3">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <Droplets className="w-3.5 h-3.5 text-[#D4FF1A]" />
+            <h2 className="font-display text-sm font-semibold text-white">Hydration Profile</h2>
+          </div>
+          <button
+            type="button"
+            onClick={() => onEditStep(5, 'hydration-habits-section')}
+            aria-label="Edit Hydration Profile"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#111111] border border-[#292C2E] hover:border-[#D4FF1A] text-xs font-medium text-white transition-colors min-h-[36px]"
+          >
+            <Edit3 className="w-3.5 h-3.5 text-[#D4FF1A]" />
+            <span>Edit</span>
+          </button>
+        </div>
+
+        <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+          <div>
+            <dt className="text-[#8A8F94]">Average Daily Water Intake</dt>
+            <dd className="text-white font-medium tabular-nums mt-0.5">
+              {hy.average_daily_water_intake
+                ? HYDRATION_INTAKE_LABELS[hy.average_daily_water_intake]
+                : 'Not specified'}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-[#8A8F94]">Drinking Frequency</dt>
+            <dd className="text-white font-medium mt-0.5">
+              {hy.drinking_frequency
+                ? DRINKING_FREQUENCY_LABELS[hy.drinking_frequency]
+                : 'Not specified'}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-[#8A8F94]">Usual Bottle Capacity</dt>
+            <dd className="text-white font-medium tabular-nums mt-0.5">
+              {hy.bottle_capacity_ml !== null
+                ? BOTTLE_CAPACITY_LABELS[String(hy.bottle_capacity_ml)]
+                : 'Not specified'}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-[#8A8F94]">Reminder Preference</dt>
+            <dd className="text-white font-medium mt-0.5">
+              {hy.reminder_preference
+                ? REMINDER_PREFERENCE_LABELS[hy.reminder_preference]
+                : 'Not specified'}
+            </dd>
           </div>
         </dl>
       </section>

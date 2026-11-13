@@ -6,6 +6,7 @@ import type {
   SafetyRestriction,
   WorkoutDay,
 } from './index';
+import type { HydrationProfileBaseline } from './hydration';
 
 export type OnboardingLocation = 'home' | 'gym';
 export type WorkoutDaysCount = 3 | 4 | 5 | 6;
@@ -56,6 +57,7 @@ export interface OnboardingDataModel {
     meal_frequency: 3 | 4 | 5 | null;
     food_preferences: string[];
   };
+  hydration_information: HydrationProfileBaseline;
   health_information: {
     diabetes_status: DiabetesStatus;
     pcos_status: PcosStatus;
@@ -120,6 +122,12 @@ export function createEmptyOnboardingData(): OnboardingDataModel {
       dietary_preference: '',
       meal_frequency: null,
       food_preferences: [],
+    },
+    hydration_information: {
+      average_daily_water_intake: '',
+      drinking_frequency: '',
+      bottle_capacity_ml: null,
+      reminder_preference: '',
     },
     health_information: {
       diabetes_status: 'not_applicable',

@@ -95,6 +95,10 @@ function loadWizardDraft(requestedStepParam: string | null): SavedWizardDraft {
           ...defaults.nutrition_information,
           ...(parsed.data?.nutrition_information ?? {}),
         },
+        hydration_information: {
+          ...defaults.hydration_information,
+          ...(parsed.data?.hydration_information ?? {}),
+        },
         health_information: {
           ...defaults.health_information,
           ...(parsed.data?.health_information ?? {}),
@@ -237,11 +241,20 @@ export const OnboardingPage: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleEditStepFromReview = (targetStep: number) => {
+  const handleEditStepFromReview = (targetStep: number, scrollTargetId?: string) => {
     setError('');
     setEditingFromReview(true);
     setStage(targetStep);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (scrollTargetId) {
+      window.setTimeout(() => {
+        const el = document.getElementById(scrollTargetId);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 220);
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const handleSelectPlan = (plan: ApprovedWorkoutPlan | null) => {
@@ -394,9 +407,14 @@ export const OnboardingPage: React.FC = () => {
               {stage === 5 && (
                 <Step05Nutrition
                   value={data.nutrition_information}
+                  hydrationValue={data.hydration_information}
                   onChange={(nutrition_information) => {
                     setError('');
                     setData((prev) => ({ ...prev, nutrition_information }));
+                  }}
+                  onHydrationChange={(hydration_information) => {
+                    setError('');
+                    setData((prev) => ({ ...prev, hydration_information }));
                   }}
                 />
               )}

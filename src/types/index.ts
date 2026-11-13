@@ -1,3 +1,5 @@
+import type { HydrationConfiguration, HydrationProfileBaseline } from './hydration';
+
 export type UserRole = 'member' | 'coach' | 'admin';
 
 export type FitnessGoal = 'fat_loss' | 'lean_recomp' | 'muscle_gain' | 'athletic_conditioning';
@@ -70,6 +72,8 @@ export interface UserProfile {
   notifications: NotificationPrefs;
   onboardingComplete: boolean;
   workoutAssignment?: WorkoutAssignmentSummary;
+  hydrationProfile?: HydrationProfileBaseline;
+  hydrationConfig?: HydrationConfiguration;
 }
 
 export type MealSlotType = 'Breakfast' | 'Lunch' | 'Snacks' | 'Dinner';
