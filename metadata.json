@@ -1,0 +1,8 @@
+{
+  "name": "UPRISE — SHRED 90-Day Fitness Platform",
+  "description": "UPRISE by NXTGEN: Unified 90-day fitness management platform for structured meal planning, workout guidance, progress tracking, streaks, and coaching.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

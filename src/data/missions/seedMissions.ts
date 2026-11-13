@@ -1,0 +1,95 @@
+import type { DailyMission } from '../../types';
+
+export const SEED_DAILY_MISSIONS: DailyMission[] = [
+  {
+    id: 'mis-thoracic-flow',
+    title: '12-Min Thoracic & Hip Capsule Flow',
+    category: 'Mobility',
+    durationMinutes: 12,
+    description:
+      'Open tight thoracic rotation and hip flexors with 90/90 switches, open books, and controlled cat-camel transitions.',
+    safetyTags: [],
+    avoidRestrictions: [],
+    suitableLocations: ['commercial_gym', 'home_dumbbells', 'bodyweight'],
+    suitableGoals: ['fat_loss', 'lean_recomp', 'muscle_gain', 'athletic_conditioning'],
+    isRecoveryOrRest: true,
+  },
+  {
+    id: 'mis-post-dinner-walk',
+    title: '15-Min Brisk Post-Meal Walk',
+    category: 'Walk',
+    durationMinutes: 15,
+    description:
+      'Step outside after lunch or dinner at a conversational Zone 2 pace to improve glucose disposal and daily NEAT.',
+    safetyTags: [],
+    avoidRestrictions: [],
+    suitableLocations: ['commercial_gym', 'home_dumbbells', 'bodyweight'],
+    suitableGoals: ['fat_loss', 'lean_recomp', 'athletic_conditioning'],
+    isRecoveryOrRest: false,
+  },
+  {
+    id: 'mis-core-bracing',
+    title: '8-Min Dead Bug & Pallof Core Circuit',
+    category: 'Workout',
+    durationMinutes: 8,
+    description:
+      'Three controlled rounds of slow dead bugs and side planks focusing on ribcage-to-pelvis alignment without spinal flexion.',
+    safetyTags: [],
+    avoidRestrictions: [],
+    suitableLocations: ['commercial_gym', 'home_dumbbells', 'bodyweight'],
+    suitableGoals: ['fat_loss', 'lean_recomp', 'muscle_gain', 'athletic_conditioning'],
+    isRecoveryOrRest: false,
+  },
+  {
+    id: 'mis-box-breathing',
+    title: '10-Min Parasympathetic Down-Regulation',
+    category: 'Recovery',
+    durationMinutes: 10,
+    description:
+      'Lie with calves elevated on a bench or chair and complete 10 minutes of 4-second inhale, 6-second exhale nasal breathing.',
+    safetyTags: [],
+    avoidRestrictions: [],
+    suitableLocations: ['commercial_gym', 'home_dumbbells', 'bodyweight'],
+    suitableGoals: ['fat_loss', 'lean_recomp', 'muscle_gain', 'athletic_conditioning'],
+    isRecoveryOrRest: true,
+  },
+  {
+    id: 'mis-sleep-prep',
+    title: '15-Min Screen-Free Rest & Stretch',
+    category: 'Rest',
+    durationMinutes: 15,
+    description:
+      'Shut down screens 30 minutes early, hydrate with warm herbal tea, and perform gentle calf and hamstring stretches.',
+    safetyTags: [],
+    avoidRestrictions: [],
+    suitableLocations: ['commercial_gym', 'home_dumbbells', 'bodyweight'],
+    suitableGoals: ['fat_loss', 'lean_recomp', 'muscle_gain', 'athletic_conditioning'],
+    isRecoveryOrRest: true,
+  },
+  {
+    id: 'mis-stair-finisher',
+    title: '10-Min Incline Treadmill Walk',
+    category: 'Walk',
+    durationMinutes: 10,
+    description:
+      'Set treadmill to 6% incline at 5.0 km/h for a steady low-impact aerobic flush without taxing recovery.',
+    safetyTags: [],
+    avoidRestrictions: ['knee_injury'],
+    suitableLocations: ['commercial_gym'],
+    suitableGoals: ['fat_loss', 'athletic_conditioning'],
+    isRecoveryOrRest: false,
+  },
+  {
+    id: 'mis-scapular-health',
+    title: '8-Min Band Pull-Apart & Wall Slide',
+    category: 'Mobility',
+    durationMinutes: 8,
+    description:
+      'Restore overhead shoulder mechanics with 3 sets of 15 band pull-aparts and slow forearm wall slides.',
+    safetyTags: [],
+    avoidRestrictions: ['shoulder_impingement'],
+    suitableLocations: ['commercial_gym', 'home_dumbbells', 'bodyweight'],
+    suitableGoals: ['muscle_gain', 'lean_recomp'],
+    isRecoveryOrRest: true,
+  },
+];
