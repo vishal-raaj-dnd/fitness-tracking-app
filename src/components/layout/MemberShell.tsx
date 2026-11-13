@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink, useLocation, Link } from 'react-router-dom';
 import { Home, Utensils, Dumbbell, TrendingUp, User, Play } from 'lucide-react';
-import { motion } from 'motion/react';
+import { LayoutGroup, motion } from 'motion/react';
 import { UpriseLogo } from './UpriseLogo';
 import { SafeImage } from './SafeImage';
 import { useUprise } from '../../context/UpriseContext';
@@ -147,45 +147,89 @@ export const MemberShell: React.FC<{ children: React.ReactNode }> = ({ children 
 
       {/* Mobile Floating Dock Bottom Footer Navbar (< 1024px) */}
       <div className="lg:hidden fixed bottom-3 inset-x-3 z-40 pointer-events-none pb-safe">
-        <nav
-          aria-label="Mobile navigation"
-          className="pointer-events-auto max-w-md mx-auto bg-[#111214]/92 backdrop-blur-xl border border-[#292C2E] rounded-2xl shadow-[0_12px_32px_rgba(0,0,0,0.75)] px-1.5"
-        >
-          <div className="grid grid-cols-5 h-16 items-center">
-            {MEMBER_NAV_ITEMS.map(({ to, label, icon: Icon }) => {
-              const isActive =
-                to === '/' ? location.pathname === '/' : location.pathname.startsWith(to);
-              return (
-                <NavLink
-                  key={to}
-                  to={to}
-                  className="relative flex flex-col items-center justify-center min-h-[46px] min-w-[44px] gap-1 rounded-xl active:scale-95 transition-transform duration-150"
-                >
-                  {isActive && (
-                    <motion.span
-                      layoutId="mobileNavIndicator"
-                      transition={{ type: 'spring', stiffness: 450, damping: 34 }}
-                      className="absolute inset-1 rounded-xl bg-[#1D201E] border border-[#D4FF1A]/30"
-                    />
-                  )}
-                  <Icon
-                    className={`relative z-10 w-5 h-5 transition-colors duration-150 ${
-                      isActive ? 'text-[#D4FF1A]' : 'text-[#6B6B6B]'
-                    }`}
-                    strokeWidth={isActive ? 2.25 : 1.75}
-                  />
-                  <span
-                    className={`relative z-10 text-[11px] font-medium leading-none transition-colors duration-150 ${
-                      isActive ? 'text-white' : 'text-[#8A8F94]'
-                    }`}
+        <LayoutGroup id="mobile-bottom-nav">
+          <nav
+            aria-label="Mobile navigation"
+            className="pointer-events-auto max-w-md mx-auto bg-[#0F1012]/92 backdrop-blur-xl border border-[#292C2E] rounded-2xl shadow-[0_14px_36px_rgba(0,0,0,0.82)] px-1.5"
+          >
+            <div className="grid grid-cols-5 h-[66px] items-center">
+              {MEMBER_NAV_ITEMS.map(({ to, label, icon: Icon }) => {
+                const isActive =
+                  to === '/' ? location.pathname === '/' : location.pathname.startsWith(to);
+                return (
+                  <NavLink
+                    key={to}
+                    to={to}
+                    aria-current={isActive ? 'page' : undefined}
+                    className="relative flex items-center justify-center min-h-[50px] min-w-[44px] rounded-xl select-none touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4FF1A]/60"
                   >
-                    {label}
-                  </span>
-                </NavLink>
-              );
-            })}
-          </div>
-        </nav>
+                    <motion.div
+                      whileTap={{ scale: 0.92 }}
+                      transition={{ type: 'spring', stiffness: 600, damping: 30 }}
+                      className="relative w-full h-[54px] flex flex-col items-center justify-center gap-1 pt-1"
+                    >
+                      {isActive && (
+                        <motion.span
+                          layoutId="mobileNavIndicator"
+                          transition={{ type: 'spring', stiffness: 460, damping: 32, mass: 0.75 }}
+                          className="absolute inset-0.5 rounded-xl bg-[#1C201D] border border-[#D4FF1A]/35 shadow-[inset_0_1px_0_0_rgba(212,255,26,0.12)]"
+                        />
+                      )}
+
+                      {isActive && (
+                        <motion.span
+                          layoutId="mobileNavTopBar"
+                          transition={{ type: 'spring', stiffness: 500, damping: 34 }}
+                          aria-hidden="true"
+                          className="absolute top-1 w-6 h-[2.5px] rounded-full bg-[#D4FF1A] shadow-[0_0_8px_rgba(212,255,26,0.55)] z-20"
+                        />
+                      )}
+
+                      <motion.span
+                        aria-hidden="true"
+                        animate={{
+                          opacity: isActive ? 1 : 0,
+                          scale: isActive ? 1 : 0.65,
+                        }}
+                        transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                        className="absolute top-2.5 w-7 h-7 rounded-full bg-[#D4FF1A]/12 blur-md pointer-events-none"
+                      />
+
+                      <motion.span
+                        animate={{
+                          scale: isActive ? 1.12 : 1,
+                          y: isActive ? -1 : 0,
+                        }}
+                        transition={{ type: 'spring', stiffness: 520, damping: 28 }}
+                        className="relative z-10 flex items-center justify-center"
+                      >
+                        <Icon
+                          className={`w-5 h-5 transition-colors duration-200 ${
+                            isActive ? 'text-[#D4FF1A]' : 'text-[#6B6B6B]'
+                          }`}
+                          strokeWidth={isActive ? 2.25 : 1.75}
+                        />
+                      </motion.span>
+
+                      <motion.span
+                        animate={{
+                          opacity: isActive ? 1 : 0.72,
+                          y: isActive ? -0.5 : 0,
+                        }}
+                        transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+                        className={`relative z-10 text-[11px] leading-none transition-colors duration-200 ${
+                          isActive ? 'font-semibold text-white' : 'font-medium text-[#8A8F94]'
+                        }`}
+                      >
+                        {label}
+                      </motion.span>
+                    </motion.div>
+                  </NavLink>
+                );
+              })}
+            </div>
+          </nav>
+        </LayoutGroup>
       </div>
     </div>
   );
